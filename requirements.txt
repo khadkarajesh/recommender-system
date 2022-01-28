@@ -1,0 +1,13 @@
+Flask
+Flask-RESTful
+Flask-SQLAlchemy
+joblib
+SQLAlchemy
+pandas
+numpy
+requests
+streamlit
+python-dotenv
+marshmallow-sqlalchemy
+psycopg2
+marshmallow
