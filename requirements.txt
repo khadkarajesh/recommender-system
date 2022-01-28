@@ -11,3 +11,4 @@ python-dotenv
 marshmallow-sqlalchemy
 psycopg2
 marshmallow
+scikit-surprise
