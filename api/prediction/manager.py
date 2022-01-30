@@ -73,6 +73,6 @@ def create_users():
 
 def get_similar_items(item_id):
     knn = joblib.load(Path.cwd() / 'api' / 'prediction' / 'knn.joblib')
-    products = knn.get_neighbors(item_id, k=10)
+    products = knn.get_neighbors(int(item_id), k=10)
     print(products)
     return get_product_details(products)
