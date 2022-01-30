@@ -170,3 +170,5 @@ ipython_config.py
 .idea
 data
 
+api/prediction/knn.joblib
+api/prediction/svd.joblib
