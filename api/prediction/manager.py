@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+import joblib
 import pandas as pd
 from faker import Faker
 from werkzeug.security import generate_password_hash
@@ -68,3 +69,10 @@ def create_users():
     db.session.add_all(users)
     db.session.commit()
     return {'message': 'ok'}
+
+
+def get_similar_items(item_id):
+    knn = joblib.load(Path.cwd() / 'api' / 'prediction' / 'knn.joblib')
+    products = knn.get_neighbors(item_id, k=10)
+    print(products)
+    return get_product_details(products)

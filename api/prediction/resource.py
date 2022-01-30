@@ -2,7 +2,7 @@ from flask import request
 from flask_restful import Resource
 
 from api.prediction.manager import save_recommended_products, create_users, get_popular_products, \
-    get_recommended_products
+    get_recommended_products, get_similar_items
 
 
 class RecommendedProductResource(Resource):
@@ -30,3 +30,9 @@ class UserSeederResource(Resource):
     @classmethod
     def post(cls):
         return create_users()
+
+
+class SimilarProductResource(Resource):
+    @classmethod
+    def get(cls, product_id):
+        return get_similar_items(product_id)
