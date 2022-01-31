@@ -9,5 +9,6 @@ class LoginResource(Resource):
     @classmethod
     def post(cls):
         user_schema = UserSchema()
+        print(request.json)
         user = user_schema.load(request.json)
         return login(user.username, user.password)

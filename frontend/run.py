@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import streamlit as st
@@ -6,6 +7,11 @@ from PIL import Image
 import requests
 
 API_URL = "http://127.0.0.1:5000/api/v1"
+
+INITIAL_STATE = "INITIAL"
+LOADING_STATE = "LOADING"
+LOGGED_IN_STATE = "LOGGED_IN"
+PRESSED_LOGIN_STATE = "PRESSED_LOGIN_STATE"
 
 api_data = [
     {
@@ -198,19 +204,80 @@ def get_similar_items(item_id):
 
 
 def get_recommended_products_for_user(user_id):
-    return api_data
+    response = requests.get(API_URL + f'/users/{user_id}/recommended-products')
+    return response.json()
 
 
-with st.container():
-    st.write("Popular Products")
-    col1, col2, col3, col4, col5 = st.columns(5)
+def login(user_name, user_password):
+    response = requests.post(API_URL + "/auth/login",
+                             json={'username': int(user_name), 'password': user_password})
+    if response.status_code == 200:
+        st.write(f"Hi {response.json()['first_name']}")
+        st.session_state['first_name'] = response.json()['first_name']
+        st.session_state['id'] = response.json()['id']
+    else:
+        st.write("login failed")
 
-    data = get_popular_products()
 
-    cols = st.columns(len(data) // 2)
-    for i, item in enumerate(data):
-        col = cols[i % 5]
-        col.image(
-            item['images'][0]['128'] if item['images'] else Image.open(Path.cwd() / 'frontend' / 'placeholder.png'))
-        col.text(item['label'])
-        col.text(item['selling_price'])
+def show_popular_products():
+    with st.container():
+        st.write("Popular Products")
+        data = get_popular_products()
+
+        cols = st.columns(len(data) // 2)
+        for i, item in enumerate(data):
+            col = cols[i % 5 if len(data) >= 10 else 3]
+            col.image(
+                item['images'][0]['128'] if item['images'] else Image.open(
+                    Path.cwd() / 'frontend' / 'placeholder.png'))
+            col.text(item['label'])
+            col.text(item['selling_price'])
+
+
+def show_recommended_products():
+    with st.container():
+        st.write("Recommended For You")
+        data = get_recommended_products_for_user(st.session_state['id'])
+
+        cols = st.columns(len(data) // 2)
+        for i, item in enumerate(data):
+            col = cols[i % 5 if len(data) >= 10 else 2]
+            col.image(
+                item['images'][0]['128'] if item['images'] else Image.open(
+                    Path.cwd() / 'frontend' / 'placeholder.png'))
+            col.text(item['label'])
+            col.text(item['selling_price'])
+
+
+if 'state' not in st.session_state:
+    st.session_state['state'] = INITIAL_STATE
+
+if st.session_state['state'] == INITIAL_STATE:
+    show_popular_products()
+
+if st.session_state['state'] == LOGGED_IN_STATE:
+    st.write("Hi " + st.session_state['first_name'] if 'first_name' in st.session_state else "Howdy")
+    show_recommended_products()
+    show_popular_products()
+
+
+def make_request(user_name, user_password):
+    st.session_state['state'] = LOADING_STATE
+    login(user_name, user_password)
+    st.session_state['state'] = LOGGED_IN_STATE
+
+
+if st.session_state['state'] == PRESSED_LOGIN_STATE:
+    form = st.form("Login")
+    username = form.text_input("username")
+    password = form.text_input("password")
+    submitted = form.form_submit_button("Submit")
+    if submitted: make_request(username, password)
+
+
+def change_state():
+    st.session_state['state'] = PRESSED_LOGIN_STATE
+
+
+if st.session_state['state'] == INITIAL_STATE:
+    st.button("Login", on_click=change_state())
