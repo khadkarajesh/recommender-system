@@ -12,6 +12,7 @@ INITIAL_STATE = "INITIAL"
 LOADING_STATE = "LOADING"
 LOGGED_IN_STATE = "LOGGED_IN"
 PRESSED_LOGIN_STATE = "PRESSED_LOGIN_STATE"
+PRODUCT_DETAIL_STATE = "PRODUCT_DETAIL_STATE"
 
 api_data = [
     {
@@ -193,6 +194,9 @@ api_data = [
     }
 ]
 
+if 'state' not in st.session_state:
+    st.session_state['state'] = INITIAL_STATE
+
 
 def get_popular_products():
     response = requests.get(API_URL + '/popular-products')
@@ -208,6 +212,12 @@ def get_recommended_products_for_user(user_id):
     return response.json()
 
 
+def on_item_click(item):
+    st.session_state['product_id'] = item['id']
+    st.session_state['item'] = item
+    st.session_state['state'] = PRODUCT_DETAIL_STATE
+
+
 def login(user_name, user_password):
     response = requests.post(API_URL + "/auth/login",
                              json={'username': int(user_name), 'password': user_password})
@@ -217,6 +227,22 @@ def login(user_name, user_password):
         st.session_state['id'] = response.json()['id']
     else:
         st.write("login failed")
+
+
+def show_similar_products():
+    with st.container():
+        st.write("Similar Products")
+        data = get_similar_items(st.session_state['product_id'])
+
+        cols = st.columns(len(data) // 2)
+        for i, item in enumerate(data):
+            col = cols[i % 5 if len(data) >= 10 else 3]
+            col.image(
+                item['images'][0]['128'] if item['images'] else Image.open(
+                    Path.cwd() / 'frontend' / 'placeholder.png'))
+            col.text(item['label'])
+            col.text(item['selling_price'])
+            col.button("Detail", on_click=on_item_click(item), key=item['id'])
 
 
 def show_popular_products():
@@ -232,6 +258,16 @@ def show_popular_products():
                     Path.cwd() / 'frontend' / 'placeholder.png'))
             col.text(item['label'])
             col.text(item['selling_price'])
+            col.button("Detail", on_click=on_item_click(item), key=item['id'])
+
+
+if st.session_state['state'] == PRODUCT_DETAIL_STATE:
+    with st.container():
+        st.write(st.session_state['item']['label'])
+        st.write(st.session_state['item']['selling_price'])
+        st.image(st.session_state['item']['images'][0]['128'] if st.session_state['item']['images'] else Image.open(
+            Path.cwd() / 'frontend' / 'placeholder.png'))
+        show_similar_products()
 
 
 def show_recommended_products():
@@ -246,11 +282,9 @@ def show_recommended_products():
                 item['images'][0]['128'] if item['images'] else Image.open(
                     Path.cwd() / 'frontend' / 'placeholder.png'))
             col.text(item['label'])
-            col.text(item['selling_price'])
+            col.button(item['selling_price'])
+            col.button("Detail", on_click=on_item_click(item), key=item['id'])
 
-
-if 'state' not in st.session_state:
-    st.session_state['state'] = INITIAL_STATE
 
 if st.session_state['state'] == INITIAL_STATE:
     show_popular_products()
