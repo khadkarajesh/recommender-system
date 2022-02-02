@@ -44,6 +44,7 @@ class ProductSearchResource(Resource):
     @classmethod
     def get(cls):
         query_param = request.args['name']
-        products = Product.query.filter(Product.title.contains(query_param))
+        products = Product.query.filter(Product.title.match(f"%{query_param}%")).all()
+        print(query_param)
         schema = ProductSchema(many=True)
         return schema.dump(products)

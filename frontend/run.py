@@ -8,11 +8,15 @@ import requests
 
 API_URL = "http://127.0.0.1:5000/api/v1"
 
+#SEARCH_URL = API_URL + f'/products?name={search_item}'
+
+
 INITIAL_STATE = "INITIAL"
 LOADING_STATE = "LOADING"
 LOGGED_IN_STATE = "LOGGED_IN"
 PRESSED_LOGIN_STATE = "PRESSED_LOGIN_STATE"
 PRODUCT_DETAIL_STATE = "PRODUCT_DETAIL_STATE"
+SEARCH_PRODUCT_STATE = "SEARCH_PRODUCT_STATE"
 
 api_data = [
     {
@@ -204,13 +208,22 @@ def get_popular_products():
 
 
 def get_similar_items(item_id):
-    return api_data
+    response = requests.get(API_URL + f'/products/{item_id}/similar-products')
+    return response.json()
 
 
 def get_recommended_products_for_user(user_id):
     response = requests.get(API_URL + f'/users/{user_id}/recommended-products')
     return response.json()
 
+def get_search_products(search_item):
+    st.write(search_item)
+    response = requests.get(API_URL + f'/products?name={search_item}')
+    return response.json()
+
+def on_search_click(name):
+    st.session_state['search_id'] = name
+    st.session_state['state'] = SEARCH_PRODUCT_STATE
 
 def on_item_click(item):
     st.session_state['product_id'] = item['id']
@@ -234,15 +247,33 @@ def show_similar_products():
         st.write("Similar Products")
         data = get_similar_items(st.session_state['product_id'])
 
-        cols = st.columns(len(data) // 2)
+        cols = st.columns(len(data))
         for i, item in enumerate(data):
-            col = cols[i % 5 if len(data) >= 10 else 3]
+            col = cols[i % 5 if len(data) >= 5 else 4]
             col.image(
                 item['images'][0]['128'] if item['images'] else Image.open(
                     Path.cwd() / 'frontend' / 'placeholder.png'))
             col.text(item['label'])
             col.text(item['selling_price'])
-            col.button("Detail", on_click=on_item_click(item), key=item['id'])
+            col.button(label="Details", on_click=on_item_click(item), key=item['id'])
+
+def search_bar():
+    with st.container():
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            search_item = st.text_input("")
+        with col2:
+            st.write("\n")
+            st.write("\n")
+            st.button(label="Search", key = "Search", on_click=show_search_products(search_item))
+
+
+def show_search_products(search_item):
+    st.session_state['state'] = SEARCH_PRODUCT_STATE
+    with st.container():
+        st.write(search_item)
+        data = get_search_products(search_item)
+        print(len(data))
 
 
 def show_popular_products():
@@ -277,7 +308,7 @@ def show_recommended_products():
 
         cols = st.columns(len(data) // 2)
         for i, item in enumerate(data):
-            col = cols[i % 5 if len(data) >= 10 else 2]
+            col = cols[i % 5 if len(data) >= 5 else 4]
             col.image(
                 item['images'][0]['128'] if item['images'] else Image.open(
                     Path.cwd() / 'frontend' / 'placeholder.png'))
@@ -287,6 +318,7 @@ def show_recommended_products():
 
 
 if st.session_state['state'] == INITIAL_STATE:
+    search_bar()
     show_popular_products()
 
 if st.session_state['state'] == LOGGED_IN_STATE:
@@ -312,6 +344,8 @@ if st.session_state['state'] == PRESSED_LOGIN_STATE:
 def change_state():
     st.session_state['state'] = PRESSED_LOGIN_STATE
 
+if st.session_state['state'] == SEARCH_PRODUCT_STATE:
+    show_search_products()
 
 if st.session_state['state'] == INITIAL_STATE:
     st.button("Login", on_click=change_state())
