@@ -37,7 +37,7 @@ class UserSeederResource(Resource):
 class SimilarProductResource(Resource):
     @classmethod
     def get(cls, product_id):
-        return get_similar_items(product_id)
+        return get_similar_items(product_id, request.args['algorithm'])
 
 
 class ProductSearchResource(Resource):

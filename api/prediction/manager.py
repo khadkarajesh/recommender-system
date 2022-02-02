@@ -8,8 +8,13 @@ from werkzeug.security import generate_password_hash
 
 from api.auth.user import User
 from api.common import db
+from api.prediction.lightfm.manager import LightFMPredictor
 from api.prediction.model import SVDRecommendedProduct
 from api.service.inventory_service import get_product_details
+
+ALS = "als"
+HYBRID = "hybrid"
+SURPRISE = "surprise"
 
 
 def get_popular_products(k_item=10):
@@ -22,10 +27,14 @@ def get_popular_products(k_item=10):
     return get_product_details(popular_items['item'].values)
 
 
-def get_recommended_products(user_id, algorithm='svd'):
-    svd_product = SVDRecommendedProduct.query.get(user_id)
-    products = svd_product.products.split(",")
-    return get_product_details([int(item) for item in products])
+def get_recommended_products(user_id, algorithm=SURPRISE):
+    if algorithm == SURPRISE:
+        svd_product = SVDRecommendedProduct.query.get(user_id)
+        products = svd_product.products.split(",")
+        return get_product_details([int(item) for item in products])
+    elif algorithm == HYBRID:
+        manager = LightFMPredictor(user_id=user_id)
+        return manager.get_recommended_products()
 
 
 def save_recommended_products():
@@ -71,8 +80,12 @@ def create_users():
     return {'message': 'ok'}
 
 
-def get_similar_items(item_id):
-    knn = joblib.load(Path.cwd() / 'api' / 'prediction' / 'knn.joblib')
-    products = knn.get_neighbors(int(item_id), k=10)
-    print(products)
-    return get_product_details(products)
+def get_similar_items(item_id, algorithm):
+    if algorithm == SURPRISE:
+        knn = joblib.load(Path.cwd() / 'api' / 'prediction' / 'knn.joblib')
+        products = knn.get_neighbors(int(item_id), k=10)
+        return get_product_details(products)
+    elif algorithm == HYBRID:
+        manager = LightFMPredictor(item_id=int(item_id))
+        products = manager.get_similar_items()
+        return get_product_details(products)
