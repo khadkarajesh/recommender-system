@@ -3,6 +3,8 @@ from flask_restful import Resource
 
 from api.prediction.manager import save_recommended_products, create_users, get_popular_products, \
     get_recommended_products, get_similar_items
+from api.prediction.model import Product
+from api.prediction.schema import ProductSchema
 
 
 class RecommendedProductResource(Resource):
@@ -36,3 +38,12 @@ class SimilarProductResource(Resource):
     @classmethod
     def get(cls, product_id):
         return get_similar_items(product_id)
+
+
+class ProductSearchResource(Resource):
+    @classmethod
+    def get(cls):
+        query_param = request.args['name']
+        products = Product.query.filter(Product.title.contains(query_param))
+        schema = ProductSchema(many=True)
+        return schema.dump(products)
