@@ -14,3 +14,4 @@ marshmallow
 scikit-surprise
 Faker~=11.3.0
 Werkzeug~=2.0.2
+flask_marshmallow
