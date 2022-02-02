@@ -172,3 +172,5 @@ data
 
 api/prediction/knn.joblib
 api/prediction/svd.joblib
+
+v1/*
