@@ -34,10 +34,3 @@ def get_product_details(products):
     product_details_from_odoo = fetch(products)
     product_details = filter_details_by_product_attributes(product_details_from_odoo)
     return product_details
-
-
-if __name__ == '__main__':
-    print(get_product_details([3990, 3977, 1780, 3972, 3971, 3969, 1785, 3967, 3965, 3959]))
-    # get_product_details(['20473', '2046'])
-    # get_product_details(['2046'])
-    # get_product_details(['2046'], file=False)

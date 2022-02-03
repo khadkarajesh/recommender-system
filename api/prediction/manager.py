@@ -10,7 +10,8 @@ from api.auth.user import User
 from api.common import db
 from api.prediction.implicit.predictor import ImplicitPredictor
 from api.prediction.lightfm.predictor import LightFMPredictor
-from api.prediction.model import SVDRecommendedProduct
+from api.prediction.model import SVDRecommendedProduct, Product
+from api.prediction.schema import ProductSchema
 from api.service.inventory_service import get_product_details
 
 ALS = "als"
@@ -94,3 +95,9 @@ def get_similar_items(item_id, algorithm):
         predictor = ImplicitPredictor(item_id=int(item_id))
     products = predictor.get_similar_items()
     return get_product_details(products)
+
+
+def search_products(search_term):
+    products = Product.query.filter(Product.title.contains(search_term))
+    products_ids = [product.id for product in products]
+    return get_product_details(products_ids)

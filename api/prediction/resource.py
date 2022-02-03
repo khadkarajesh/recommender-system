@@ -2,7 +2,7 @@ from flask import request
 from flask_restful import Resource
 
 from api.prediction.manager import save_recommended_products, create_users, get_popular_products, \
-    get_recommended_products, get_similar_items
+    get_recommended_products, get_similar_items, search_products
 from api.prediction.model import Product
 from api.prediction.schema import ProductSchema
 
@@ -44,6 +44,4 @@ class ProductSearchResource(Resource):
     @classmethod
     def get(cls):
         query_param = request.args['name']
-        products = Product.query.filter(Product.title.contains(query_param))
-        schema = ProductSchema(many=True)
-        return schema.dump(products)
+        return search_products(query_param)
