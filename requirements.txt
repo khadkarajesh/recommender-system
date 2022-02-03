@@ -9,7 +9,6 @@ requests~=2.27.1
 streamlit~=1.5.0
 python-dotenv~=0.19.2
 marshmallow-sqlalchemy
-psycopg2
 marshmallow
 scikit-surprise
 Faker~=11.3.0
