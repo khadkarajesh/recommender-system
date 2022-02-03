@@ -8,7 +8,8 @@ from werkzeug.security import generate_password_hash
 
 from api.auth.user import User
 from api.common import db
-from api.prediction.lightfm.manager import LightFMPredictor
+from api.prediction.implicit.predictor import ImplicitPredictor
+from api.prediction.lightfm.predictor import LightFMPredictor
 from api.prediction.model import SVDRecommendedProduct
 from api.service.inventory_service import get_product_details
 
@@ -33,8 +34,10 @@ def get_recommended_products(user_id, algorithm=SURPRISE):
         products = svd_product.products.split(",")
         return get_product_details([int(item) for item in products])
     elif algorithm == HYBRID:
-        manager = LightFMPredictor(user_id=user_id)
-        return manager.get_recommended_products()
+        predictor = LightFMPredictor(user_id=user_id)
+    elif algorithm == ALS:
+        predictor = ImplicitPredictor(user_id=user_id)
+    return predictor.get_recommended_products()
 
 
 def save_recommended_products():
@@ -86,6 +89,8 @@ def get_similar_items(item_id, algorithm):
         products = knn.get_neighbors(int(item_id), k=10)
         return get_product_details(products)
     elif algorithm == HYBRID:
-        manager = LightFMPredictor(item_id=int(item_id))
-        products = manager.get_similar_items()
-        return get_product_details(products)
+        predictor = LightFMPredictor(item_id=int(item_id))
+    elif algorithm == ALS:
+        predictor = ImplicitPredictor(item_id=int(item_id))
+    products = predictor.get_similar_items()
+    return get_product_details(products)

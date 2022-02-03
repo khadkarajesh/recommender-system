@@ -173,7 +173,7 @@ data
 api/prediction/knn.joblib
 api/prediction/svd.joblib
 api/prediction/implicit/model.joblib
-api/prediction/implicit/sparse_user_item.joblib
+api/prediction/implicit/interactions.joblib
 
 api/prediction/lightfm/id_mapper.joblib
 api/prediction/lightfm/model.joblib
