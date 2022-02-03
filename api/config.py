@@ -19,6 +19,8 @@ class DevelopmentConfig(Config):
     DB_SERVER = 'localhost'
     SQLALCHEMY_DATABASE_URI = f"postgresql://{environ.get('USER_NAME')}:{environ.get('USER_PASSWORD')}@{DB_SERVER}:{environ.get('DATABASE_PORT')}/{environ.get('DATABASE_NAME')}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    TOKEN = environ.get('TOKEN')
+    URL = environ.get('URL')
 
 
 class TestingConfig(Config):
