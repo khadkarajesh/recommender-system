@@ -1,10 +1,14 @@
 import time
+from pathlib import Path
 from typing import Dict
 
 import requests
+from PIL import Image, ImageOps
 from hydralit import HydraHeadApp
 import streamlit as st
 import hydralit as hy
+import hydralit_components as hc
+from itertools import cycle
 
 API_URL = "http://127.0.0.1:5000/api/v1"
 
@@ -59,8 +63,8 @@ class LoginApp(HydraHeadApp):
         login_form = parent_container.form(key="login_form")
 
         form_state = {}
-        form_state['username'] = login_form.text_input('Username')
-        form_state['password'] = login_form.text_input('Password', type="password")
+        form_state['username'] = login_form.text_input('Username', value="673536333")
+        form_state['password'] = login_form.text_input('Password', type="password", value="password")
         form_state['submitted'] = login_form.form_submit_button('Login')
         return form_state
 
@@ -68,7 +72,7 @@ class LoginApp(HydraHeadApp):
         response = requests.post(API_URL + "/auth/login",
                                  json={'username': form_data['username'], 'password': form_data['password']})
         if response.status_code == 200:
-            self.session_state.current_user = response.json()
+            st.session_state['user'] = response.json()
             msg_container.success(f"✔️ Login success")
             with st.spinner("🤓 now redirecting to application...."):
                 time.sleep(1)
@@ -81,13 +85,31 @@ class LoginApp(HydraHeadApp):
             msg_container.error(f"❌ Login unsuccessful, 😕 please check your username and password and try again.")
 
 
+def get_recommended_products_for_user(user_id):
+    response = requests.get(API_URL + f'/users/{user_id}/recommended-products?algorithm=hybrid')
+    return response.json()
+
+
 class DashboardApp(HydraHeadApp):
     def run(self):
         access, user_name = self.check_access()
         if access == 0:
             st.write("Hello Guest")
         else:
-            st.write(user_name)
+            data = get_recommended_products_for_user(st.session_state['user']['id'])
+            st.write("Recommended For You")
+            cols = cycle(st.columns(5))
+            for i, item in enumerate(data):
+                col = next(cols)
+                if not item['images']:
+                    original_image = Image.open("placeholder.png")
+                    size = (256, 256)
+                    fit_and_resized_image = ImageOps.fit(original_image, size, Image.ANTIALIAS)
+                    col.image(fit_and_resized_image, width=256, caption=item['label'])
+                else:
+                    col.image(item['images'][0]['256'], width=256, caption=item['label'])
+                col.text(item['selling_price'])
+                col.button("Detail", key=item['id'])
 
 
 class LogoutApp(HydraHeadApp):
@@ -95,7 +117,7 @@ class LogoutApp(HydraHeadApp):
         st.write("Logout App")
 
 
-app = hy.HydraApp(title='Simple Multi-Page App')
+app = hy.HydraApp(title='Simple Multi-Page App', hide_streamlit_markers=False)
 
 app.add_app("Home", icon="📚", app=DashboardApp(), is_home=True)
 app.add_app("Login", app=LoginApp(), is_login=True, logout_label="Logout")
