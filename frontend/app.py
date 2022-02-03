@@ -93,7 +93,7 @@ def get_recommended_products_for_user(user_id):
 class DashboardApp(HydraHeadApp):
     def run(self):
         access, user_name = self.check_access()
-        if access == 0:
+        if access == 1:
             st.write("Hello Guest")
         else:
             data = get_recommended_products_for_user(st.session_state['user']['id'])
