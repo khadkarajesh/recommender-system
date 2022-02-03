@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import joblib
+import numpy as np
 import pandas as pd
 from faker import Faker
 from werkzeug.security import generate_password_hash
@@ -11,7 +12,6 @@ from api.common import db
 from api.prediction.implicit.predictor import ImplicitPredictor
 from api.prediction.lightfm.predictor import LightFMPredictor
 from api.prediction.model import SVDRecommendedProduct, Product
-from api.prediction.schema import ProductSchema
 from api.service.inventory_service import get_product_details
 
 ALS = "als"
@@ -25,8 +25,10 @@ def get_popular_products(k_item=10):
     popular_items = data_frame.groupby(['item']).size().reset_index()
     popular_items['count'] = popular_items[0]
     popular_items = popular_items.sort_values(by='count', ascending=False).head(k_item)
-    print(popular_items['item'].values)
-    return get_product_details(popular_items['item'].values)
+    x = popular_items['item'].values
+    np.random.shuffle(x)
+    print(x)
+    return get_product_details(x)
 
 
 def get_recommended_products(user_id, algorithm=SURPRISE):
