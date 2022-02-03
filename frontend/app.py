@@ -167,12 +167,12 @@ class ProductDetailApp(HydraHeadApp):
         else:
             data = get_similar_products(product['id'])
             with st.container():
-                st.write(product['label'])
+                st.markdown(f"### {product['label']}")
                 st.image(product['images'][0]['256'] if product['images'] else Image.open(
                     Path.cwd() / 'placeholder.png'))
                 st.write(product['selling_price'])
 
-            st.write("Similar Item For You")
+            st.markdown("#### Similar Item")
             cols = cycle(st.columns(5))
             for i, item in enumerate(data):
                 col = next(cols)
