@@ -1,9 +1,12 @@
-from datetime import time
+import time
 from typing import Dict
 
+import requests
 from hydralit import HydraHeadApp
 import streamlit as st
 import hydralit as hy
+
+API_URL = "http://127.0.0.1:5000/api/v1"
 
 
 class LandingScreen(HydraHeadApp):
@@ -30,7 +33,7 @@ class LoginApp(HydraHeadApp):
         Application entry point.
         """
 
-        st.markdown("<h1 style='text-align: center;'>Secure Hydralit Login</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: center;'>Recommender Login</h1>", unsafe_allow_html=True)
 
         c1, c2, c3, = st.columns([2, 2, 2])
         c3.image("lock.png", width=100, )
@@ -58,58 +61,64 @@ class LoginApp(HydraHeadApp):
         form_state = {}
         form_state['username'] = login_form.text_input('Username')
         form_state['password'] = login_form.text_input('Password', type="password")
-        form_state['access_level'] = login_form.selectbox('Example Access Level', (1, 2))
         form_state['submitted'] = login_form.form_submit_button('Login')
-
-        parent_container.write("sample login -> joe & joe")
-
-        if parent_container.button('Guest Login', key='guestbtn'):
-            # set access level to a negative number to allow a kick to the unsecure_app set in the parent
-            self.set_access(1, 'guest')
-            self.do_redirect()
-
-        if parent_container.button('Sign Up', key='signupbtn'):
-            # set access level to a negative number to allow a kick to the unsecure_app set in the parent
-            self.set_access(-1, 'guest')
-
-            # Do the kick to the signup app
-            self.do_redirect()
-
         return form_state
 
     def _do_login(self, form_data, msg_container) -> None:
-
-        # access_level=0 Access denied!
-        access_level = self._check_login(form_data)
-
-        if access_level > 0:
+        response = requests.post(API_URL + "/auth/login",
+                                 json={'username': form_data['username'], 'password': form_data['password']})
+        if response.status_code == 200:
+            self.session_state.current_user = response.json()
             msg_container.success(f"✔️ Login success")
             with st.spinner("🤓 now redirecting to application...."):
                 time.sleep(1)
-
-                # access control uses an int value to allow for levels of permission that can be set for each user, this can then be checked within each app seperately.
-                self.set_access(form_data['access_level'], form_data['username'])
-
-                # Do the kick to the home page
+                self.set_access(2, response.json()['first_name'])
                 self.do_redirect()
         else:
+            st.write("login failed")
             self.session_state.allow_access = 0
             self.session_state.current_user = None
-
             msg_container.error(f"❌ Login unsuccessful, 😕 please check your username and password and try again.")
 
-    def _check_login(self, login_data) -> int:
-        # this method returns a value indicating the success of verifying the login details provided and the permission level, 1 for default access, 0 no access etc.
 
-        if login_data['username'] == 'joe' and login_data['password'] == 'joe':
-            return 1
+class DashboardApp(HydraHeadApp):
+    def run(self):
+        access, user_name = self.check_access()
+        if access == 0:
+            st.write("Hello Guest")
         else:
-            return 0
+            st.write(user_name)
 
 
-app = hy.HydraApp(title='Simple Multi-Page App', )
+class LogoutApp(HydraHeadApp):
+    def run(self):
+        st.write("Logout App")
 
-app.add_app("Recommender System", icon="📚", app=LandingScreen(title="App"))
-app.add_app("Login", app=LoginApp(), is_login=True)
 
-app.run()
+app = hy.HydraApp(title='Simple Multi-Page App')
+
+app.add_app("Home", icon="📚", app=DashboardApp(), is_home=True)
+app.add_app("Login", app=LoginApp(), is_login=True, logout_label="Logout")
+
+app.enable_guest_access()
+
+user_access_level, username = app.check_access()
+
+if user_access_level == 0:
+    complex_nav = {
+        'Home': ['Home'],
+        'Login': ['Login']
+    }
+else:
+    complex_nav = {
+        'Home': ['Home']
+    }
+
+
+@app.login_callback
+def after_login():
+    # app.run(complex_nav)
+    pass
+
+
+app.run(complex_nav)
