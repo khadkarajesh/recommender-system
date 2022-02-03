@@ -1,16 +1,20 @@
 import time
+from itertools import cycle
 from pathlib import Path
 from typing import Dict
 
+import hydralit as hy
 import requests
+import streamlit as st
 from PIL import Image, ImageOps
 from hydralit import HydraHeadApp
-import streamlit as st
-import hydralit as hy
-import hydralit_components as hc
-from itertools import cycle
 
 API_URL = "http://127.0.0.1:5000/api/v1"
+
+if 'product' not in st.session_state:
+    st.session_state['product'] = ''
+if 'user' not in st.session_state:
+    st.session_state['user'] = ''
 
 
 class LandingScreen(HydraHeadApp):
@@ -90,7 +94,17 @@ def get_recommended_products_for_user(user_id):
     return response.json()
 
 
+def get_similar_products(item_id):
+    response = requests.get(API_URL + f'/products/{item_id}/similar-products?algorithm=hybrid')
+    return response.json()
+
+
 class DashboardApp(HydraHeadApp):
+    def _on_click(self, item):
+        st.write(item)
+        st.session_state['product'] = item
+        self.do_redirect("Detail")
+
     def run(self):
         access, user_name = self.check_access()
         if access == 1:
@@ -109,17 +123,43 @@ class DashboardApp(HydraHeadApp):
                 else:
                     col.image(item['images'][0]['256'], width=256, caption=item['label'])
                 col.text(item['selling_price'])
-                col.button("Detail", key=item['id'])
+                btn = col.button("Detail", key=item['id'])
+                if btn:
+                    self._on_click(item)
 
 
-class LogoutApp(HydraHeadApp):
+class ProductDetailApp(HydraHeadApp):
     def run(self):
-        st.write("Logout App")
+        product = st.session_state['product']
+        data = get_similar_products(product['id'])
+
+        with st.container():
+            st.write(product['label'])
+            st.image(product['images'][0]['256'] if product['images'] else Image.open(
+                Path.cwd() / 'placeholder.png'))
+            st.write(product['selling_price'])
+
+        st.write("Similar Item For You")
+        cols = cycle(st.columns(5))
+        for i, item in enumerate(data):
+            col = next(cols)
+            if not item['images']:
+                original_image = Image.open("placeholder.png")
+                size = (256, 256)
+                fit_and_resized_image = ImageOps.fit(original_image, size, Image.ANTIALIAS)
+                col.image(fit_and_resized_image, width=256, caption=item['label'])
+            else:
+                col.image(item['images'][0]['256'], width=256, caption=item['label'])
+            col.text(item['selling_price'])
+            btn = col.button("Show More", key=item['id'] ** 2)
+            if btn:
+                st.write("Detail")
 
 
 app = hy.HydraApp(title='Simple Multi-Page App', hide_streamlit_markers=False)
 
 app.add_app("Home", icon="📚", app=DashboardApp(), is_home=True)
+app.add_app("Detail", app=ProductDetailApp())
 app.add_app("Login", app=LoginApp(), is_login=True, logout_label="Logout")
 
 app.enable_guest_access()
@@ -129,11 +169,13 @@ user_access_level, username = app.check_access()
 if user_access_level == 0:
     complex_nav = {
         'Home': ['Home'],
+        'Detail': ['Detail'],
         'Login': ['Login']
     }
 else:
     complex_nav = {
-        'Home': ['Home']
+        'Home': ['Home'],
+        'Detail': ['Detail']
     }
 
 
