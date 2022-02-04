@@ -1,7 +1,6 @@
 import os
 
 from flask import Flask
-from flask.cli import cli
 
 from api.api_blueprint import api_bp
 from api.common import ma, db
