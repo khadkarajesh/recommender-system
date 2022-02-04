@@ -5,8 +5,16 @@ from api.auth.resource import LoginResource
 from api.prediction.resource import DataSaverResource, UserSeederResource, RecommendedProductResource, \
     PopularProductResource, SimilarProductResource, ProductSearchResource
 
+
+class RootResource(Resource):
+    @classmethod
+    def get(cls):
+        return {"app": "Recommender System", "api": "v1"}
+
+
 api_bp = Blueprint('api', __name__, url_prefix='/api/v1')
 api = Api(api_bp)
+api.add_resource(RootResource, '')
 api.add_resource(LoginResource, '/auth/login')
 api.add_resource(DataSaverResource, '/seed-recommended-products')
 api.add_resource(UserSeederResource, '/seed-users')
