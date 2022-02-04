@@ -1,1 +1,1 @@
-web: gunicorn run:app $PORT
+web: gunicorn wsgi:app
