@@ -39,8 +39,8 @@ class LoginApp(HydraHeadApp):
         st.markdown("<h1 style='text-align: center;'>Recommender Login</h1>", unsafe_allow_html=True)
 
         c1, c2, c3, = st.columns([2, 2, 2])
-        c3.image("lock.png", width=100, )
-        c3.image("hydra.png", width=100, )
+        c3.image("frontend/lock.png", width=100, )
+        c3.image("frontend/hydra.png", width=100, )
 
         form_data = self._create_login_form(c2)
 
@@ -165,7 +165,7 @@ class ProductDetailApp(HydraHeadApp):
             with st.container():
                 st.markdown(f"### {product['label']}")
                 st.image(product['images'][0]['256'] if product['images'] else Image.open(
-                    Path.cwd() / 'placeholder.png'))
+                    Path.cwd() / 'frontend' / 'placeholder.png'))
                 st.write(product['selling_price'])
 
             st.markdown("#### Similar Item")
