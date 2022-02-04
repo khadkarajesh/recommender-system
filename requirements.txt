@@ -16,3 +16,4 @@ Werkzeug~=2.0.2
 flask_marshmallow
 lightfm
 implicit
+psycopg2
