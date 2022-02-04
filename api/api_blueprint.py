@@ -3,7 +3,8 @@ from flask_restful import Api, Resource
 
 from api.auth.resource import LoginResource
 from api.prediction.resource import DataSaverResource, UserSeederResource, RecommendedProductResource, \
-    PopularProductResource, SimilarProductResource, ProductSearchResource, ModelGeneratorResource
+    PopularProductResource, SimilarProductResource, ProductSearchResource, ModelGeneratorResource, \
+    ModelDownloaderResource
 
 
 class RootResource(Resource):
@@ -23,3 +24,4 @@ api.add_resource(RecommendedProductResource, '/users/<user_id>/recommended-produ
 api.add_resource(SimilarProductResource, '/products/<product_id>/similar-products')
 api.add_resource(ProductSearchResource, '/products')
 api.add_resource(ModelGeneratorResource, '/models')
+api.add_resource(ModelDownloaderResource, '/downloader')

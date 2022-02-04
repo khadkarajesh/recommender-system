@@ -6,7 +6,7 @@ from flask_restful import Resource
 from api.prediction.lightfm.preprocessing import preprocess
 from api.prediction.lightfm.training import train
 from api.prediction.manager import save_recommended_products, create_users, get_popular_products, \
-    get_recommended_products, get_similar_items, search_products
+    get_recommended_products, get_similar_items, search_products, download
 from api.prediction.model import Product
 from api.prediction.schema import ProductSchema
 
@@ -59,3 +59,9 @@ class ModelGeneratorResource(Resource):
         interactions, weight = preprocess(data_path, model_path)
         result = train(interactions, model_path)
         return result
+
+
+class ModelDownloaderResource(Resource):
+    @classmethod
+    def get(cls):
+        return download()
