@@ -168,7 +168,9 @@ ipython_config.py
 
 
 .idea
-data
+data/items.csv
+data/user_item_interactions.csv
+data/users.csv
 
 api/prediction/knn.joblib
 api/prediction/svd.joblib
