@@ -9,7 +9,8 @@ import streamlit as st
 from PIL import Image, ImageOps
 from hydralit import HydraHeadApp
 
-API_URL = "http://127.0.0.1:5000/api/v1"
+API_URL = "https://recommender-system-jeevee.herokuapp.com/api/v1"
+# API_URL = "http://127.0.0.1:5000/api/v1"
 
 if 'product' not in st.session_state:
     st.session_state['product'] = {}
