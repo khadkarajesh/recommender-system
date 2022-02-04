@@ -114,16 +114,20 @@ MODEL = MODEL_PATH / 'model.joblib'
 MAPPER_KEY = 'id_mapper.joblib'
 MODEL_KEY = "model.joblib"
 
+USER_ITEM_INTERACTIONS_KEY = "user_item_interactions.csv"
+USER_INTERACTION_PATH = Path.cwd() / 'data'
+USER_INTERACTION = USER_INTERACTION_PATH / USER_ITEM_INTERACTIONS_KEY
+
 
 def download():
-    if not os.path.exists(str(ID_MAPPER)):
-        s3 = boto3.resource('s3', aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
-                            aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'))
+    s3 = boto3.resource('s3', aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
+                        aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'))
 
-        try:
-            s3.Bucket(os.environ.get('BUCKET_NAME')).download_file(MAPPER_KEY, str(ID_MAPPER))
-            s3.Bucket(os.environ.get('BUCKET_NAME')).download_file(MODEL_KEY, str(MODEL))
-            return {"success": "true"}
-        except botocore.exceptions.ClientError as e:
-            print(f"Exception while downloading models{e}")
-            return e.response['Error']['Code']
+    try:
+        s3.Bucket(os.environ.get('BUCKET_NAME')).download_file(MAPPER_KEY, str(ID_MAPPER))
+        s3.Bucket(os.environ.get('BUCKET_NAME')).download_file(MODEL_KEY, str(MODEL))
+        s3.Bucket(os.environ.get('BUCKET_NAME')).download_file(USER_ITEM_INTERACTIONS_KEY, str(USER_INTERACTION))
+        return {"success": "true"}
+    except botocore.exceptions.ClientError as e:
+        print(f"Exception while downloading models{e}")
+        return e.response['Error']['Code']
