@@ -1,6 +1,9 @@
 import json
+import os
 from pathlib import Path
 
+import boto3
+import botocore
 import joblib
 import numpy as np
 import pandas as pd
@@ -102,3 +105,25 @@ def search_products(search_term):
     products = Product.query.filter(Product.title.contains(search_term))
     products_ids = [product.id for product in products]
     return get_product_details(products_ids)
+
+
+MODEL_PATH = Path.cwd() / 'api' / 'prediction' / 'lightfm'
+ID_MAPPER = MODEL_PATH / 'id_mapper.joblib'
+MODEL = MODEL_PATH / 'model.joblib'
+
+MAPPER_KEY = 'id_mapper.joblib'
+MODEL_KEY = "model.joblib"
+
+
+def download():
+    if not os.path.exists(str(ID_MAPPER)):
+        s3 = boto3.resource('s3', aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
+                            aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'))
+
+        try:
+            s3.Bucket(os.environ.get('BUCKET_NAME')).download_file(MAPPER_KEY, str(ID_MAPPER))
+            s3.Bucket(os.environ.get('BUCKET_NAME')).download_file(MODEL_KEY, str(MODEL))
+            return {"success": "true"}
+        except botocore.exceptions.ClientError as e:
+            print(f"Exception while downloading models{e}")
+            return e.response['Error']['Code']
