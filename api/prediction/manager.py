@@ -27,7 +27,6 @@ def get_popular_products(k_item=10):
     popular_items = popular_items.sort_values(by='count', ascending=False).head(k_item)
     x = popular_items['item'].values
     np.random.shuffle(x)
-    print(x)
     return get_product_details(x)
 
 

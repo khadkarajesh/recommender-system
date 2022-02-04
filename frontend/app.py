@@ -61,8 +61,8 @@ class LoginApp(HydraHeadApp):
         login_form = parent_container.form(key="login_form")
 
         form_state = {}
-        form_state['username'] = login_form.text_input('Username', value="673536333")
-        form_state['password'] = login_form.text_input('Password', type="password", value="password")
+        form_state['username'] = login_form.text_input('Username')
+        form_state['password'] = login_form.text_input('Password', type="password")
         form_state['submitted'] = login_form.form_submit_button('Login')
         return form_state
 
@@ -111,7 +111,7 @@ class DashboardApp(HydraHeadApp):
 
     def _show_popular_products(self):
         data = get_popular_products()
-        st.write("Popular Products")
+        st.markdown("### Popular Products")
         cols = cycle(st.columns(5))
         for i, item in enumerate(data):
             col = next(cols)
@@ -128,6 +128,7 @@ class DashboardApp(HydraHeadApp):
                 self._on_click(item)
 
     def _show_similar_items(self):
+        st.markdown(f"### Hi {st.session_state['user']['first_name']}")
         data = get_recommended_products_for_user(st.session_state['user']['id'])
         st.markdown("### Recommended For You")
         cols = cycle(st.columns(5))
