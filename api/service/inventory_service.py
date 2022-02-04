@@ -2,9 +2,7 @@ import os
 
 import requests
 
-inventory_token = "jmbdx2ol7td91oq6pbmZOeJvGhT7Ke4p8VEVxoWhsndD2V5e3vgAMq7bBN4hdCgz9kMePNzUVQlRamCLThBuTg6mv83ib9pTUQBOCxrK2xk4Q4gZ6LoednizaKke_i6FEJ9GjKEMFbv7hViWs57QPjlMGBCVs4hUSGYMRgMHzqLOaN9EdGjRyI_riPfK6zFjm8njKiJ6e0qo9m_Q-1UwFVfQFb7AkPUcLVk_kZI2FraWQrylxMPPYRhYJ3kCLiRK3e4yAUrfGaFap6hBLifPOikbZEuuZD8oOHXm2QejKeM-j3Zc-7g-8dj95D_ipJqH1H5KXDp1oAZSdrpp8WTS"
-
-bearer = f"Bearer {os.environ.get('TOKEN') or inventory_token}"
+bearer = f"Bearer {os.environ.get('TOKEN')}"
 
 headers = {
     'Authorization': bearer
@@ -15,7 +13,7 @@ product_attributes = ["id", "label", "product_category", "selling_price", "image
 
 def fetch(data):
     print(data)
-    url = f"{os.environ.get('url') or 'https://odoo.jeevee.com/api/v1'}/products?ids={','.join([str(item_id) for item_id in data])}"
+    url = f"{os.environ.get('URL')}/products?ids={','.join([str(item_id) for item_id in data])}"
     response = requests.request("GET", url, headers=headers, data={})
     json_payload = response.json()
     return json_payload

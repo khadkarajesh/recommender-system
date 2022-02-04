@@ -1,0 +1,3 @@
+FLASK_APP=app.py
+APP_SETTINGS=api.config.DevelopmentConfig
+FLASK_ENV=development

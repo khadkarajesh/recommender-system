@@ -1,6 +1,5 @@
 import os
 
-from dotenv import load_dotenv
 from flask import Flask
 
 from api.api_blueprint import api_bp
@@ -20,4 +19,4 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(port=5000)
+    app.run(port=int(os.environ.get("PORT", 5000)))
