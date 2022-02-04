@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from flask.cli import cli
 
 from api.api_blueprint import api_bp
 from api.common import ma, db
@@ -17,6 +18,6 @@ def create_app():
     return app
 
 
-if __name__ == '__main__':
-    app = create_app()
-    app.run(port=5000)
+port = int(os.environ.get("PORT", 5000))
+app = create_app()
+app.run(port=port)
