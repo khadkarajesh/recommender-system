@@ -1,3 +1,4 @@
+import os
 from os import environ, path
 from dotenv import load_dotenv
 
@@ -11,8 +12,10 @@ class Config(object):
 
 
 class ProductionConfig(Config):
-    DB_SERVER = ''
-    SQLALCHEMY_DATABASE_URI = ''
+    DB_SERVER = os.environ.get('DB_SERVER')
+    SQLALCHEMY_DATABASE_URI = f"postgresql://{environ.get('USER_NAME')}:{environ.get('USER_PASSWORD')}@{DB_SERVER}:{environ.get('DATABASE_PORT')}/{environ.get('DATABASE_NAME')}"
+    TOKEN = environ.get('TOKEN')
+    URL = environ.get('URL')
 
 
 class DevelopmentConfig(Config):

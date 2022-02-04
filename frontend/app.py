@@ -26,12 +26,6 @@ class LandingScreen(HydraHeadApp):
 
 
 class LoginApp(HydraHeadApp):
-    """
-    This is an example login application to be used to secure access within a HydraApp streamlit application.
-    This application implementation uses the allow_access session variable and uses the do_redirect method if the login check is successful.
-
-    """
-
     def __init__(self, title='', **kwargs):
         self.__dict__.update(kwargs)
         self.title = title
@@ -135,7 +129,7 @@ class DashboardApp(HydraHeadApp):
 
     def _show_similar_items(self):
         data = get_recommended_products_for_user(st.session_state['user']['id'])
-        st.write("Recommended For You")
+        st.markdown("### Recommended For You")
         cols = cycle(st.columns(5))
         for i, item in enumerate(data):
             col = next(cols)
@@ -198,7 +192,7 @@ class SearchApp(HydraHeadApp):
 
     def _search(self, text):
         data = search_products(text)
-        st.write("Search Results")
+        st.markdown("### Search Results")
         cols = cycle(st.columns(5))
         for i, item in enumerate(data):
             col = next(cols)
@@ -222,7 +216,13 @@ class SearchApp(HydraHeadApp):
                 self._search(search_item)
 
 
-app = hy.HydraApp(title='Simple Multi-Page App', hide_streamlit_markers=False, navbar_sticky=True)
+app = hy.HydraApp(title='Recommender System',
+                  favicon="🐙",
+                  hide_streamlit_markers=True,
+                  banner_spacing=[0, 0, 0, 0, 0],
+                  use_navbar=True,
+                  navbar_sticky=False,
+                  navbar_animation=True)
 
 app.add_app("Home", icon="📚", app=DashboardApp(), is_home=True)
 app.add_app("Detail", app=ProductDetailApp())
