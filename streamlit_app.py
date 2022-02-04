@@ -117,7 +117,7 @@ class DashboardApp(HydraHeadApp):
         for i, item in enumerate(data):
             col = next(cols)
             if not item['images']:
-                original_image = Image.open("placeholder.png")
+                original_image = Image.open("frontend/placeholder.png")
                 size = (256, 256)
                 fit_and_resized_image = ImageOps.fit(original_image, size, Image.ANTIALIAS)
                 col.image(fit_and_resized_image, width=256, caption=item['label'])
@@ -136,7 +136,7 @@ class DashboardApp(HydraHeadApp):
         for i, item in enumerate(data):
             col = next(cols)
             if not item['images']:
-                original_image = Image.open("placeholder.png")
+                original_image = Image.open("frontend/placeholder.png")
                 size = (256, 256)
                 fit_and_resized_image = ImageOps.fit(original_image, size, Image.ANTIALIAS)
                 col.image(fit_and_resized_image, width=256, caption=item['label'])
@@ -173,7 +173,7 @@ class ProductDetailApp(HydraHeadApp):
             for i, item in enumerate(data):
                 col = next(cols)
                 if not item['images']:
-                    original_image = Image.open("placeholder.png")
+                    original_image = Image.open("frontend/placeholder.png")
                     size = (256, 256)
                     fit_and_resized_image = ImageOps.fit(original_image, size, Image.ANTIALIAS)
                     col.image(fit_and_resized_image, width=256, caption=item['label'])
@@ -199,7 +199,7 @@ class SearchApp(HydraHeadApp):
         for i, item in enumerate(data):
             col = next(cols)
             if not item['images']:
-                original_image = Image.open("placeholder.png")
+                original_image = Image.open("frontend/placeholder.png")
                 size = (256, 256)
                 fit_and_resized_image = ImageOps.fit(original_image, size, Image.ANTIALIAS)
                 col.image(fit_and_resized_image, width=256, caption=item['label'])
@@ -220,7 +220,6 @@ class SearchApp(HydraHeadApp):
 
 app = hy.HydraApp(title='Recommender System',
                   favicon="🐙",
-                  hide_streamlit_markers=True,
                   banner_spacing=[0, 0, 0, 0, 0],
                   use_navbar=True,
                   navbar_sticky=False,
