@@ -182,3 +182,4 @@ api/prediction/lightfm/model.joblib
 
 v1/*
 notebooks/*
+result.json
