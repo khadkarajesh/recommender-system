@@ -1,6 +1,6 @@
 # Recommender System
 
-Provide recommendation in ecommerce application
+It is ecommerce based recommendation engine built on operational data one of the ecommerce application. It uses the hybrid approach to recommend products. Hybrid approach combines both attribute of user, items to solve the problem of cold start and data sparsity. User attributes: Age, Gender and Items attributes: Price, Brand, Category has been considered along with interaction's purchase, click, wishlist to built model
 
 ## Used Technologies
 
