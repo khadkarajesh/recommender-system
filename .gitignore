@@ -181,3 +181,4 @@ api/prediction/lightfm/id_mapper.joblib
 api/prediction/lightfm/model.joblib
 
 v1/*
+notebooks/*
